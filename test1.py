@@ -103,7 +103,7 @@ class NewMegaAvrJtagTarget(MegaAvrJtagTarget):
 
 def hid_connect(logger):
     """
-    Connect to a tool. It should be the only one connected to the desktop.
+    Connect to a tool. It should be the only one connected to the host.
     The function returns a transport instance.
     """
     try:
@@ -140,11 +140,8 @@ def read_sram():
 def restart():
     global hk
     logger.info("Trying restart...")
+    target.protocol.detach()
     target.deactivate_physical()
-    #hk.end_session()
-    #hk.start_session()
-    #target.setup_debug_session()
-    #target.setup_config(DEVICE_INFO)
     target.activate_physical()
 
 def main():
@@ -164,7 +161,7 @@ def main():
 
     hk = housekeepingprotocol.Jtagice3HousekeepingProtocol(transport)
     hk.start_session()
-    logger.info("Housekeeping session started")
+    logger.info("Signed on")
 
     target = NewMegaAvrJtagTarget(transport)
     logger.info("Target class instantiated")
@@ -212,15 +209,14 @@ def main():
     logger.info("Programming mode stopped")
 
     restart()
-    #target.protocol.enter_progmode()
-    #target.protocol.leave_progmode()
+    target.protocol.enter_progmode() # <-- If we comment out enter/leave, then Atmel-ICE and
+    target.protocol.leave_progmode() # <--  SNAP both choke. I have no idea why
     target.protocol.attach()
     logger.info("Attached to OCD")
 
     read_sram()
 
     restart()
-    #target.protocol.enter_progmode()
     target.protocol.enter_progmode()
     logger.info("Programming mode entered")
     
@@ -250,7 +246,7 @@ def main():
     logger.info("Physcial connection deactivated")
 
     hk.end_session()
-    logger.info("Housekeeping session stopped")
+    logger.info("Signed off")
     return 0
     
  

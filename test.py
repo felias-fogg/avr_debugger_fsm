@@ -102,7 +102,7 @@ class NewMegaAvrJtagTarget(MegaAvrJtagTarget):
 
 def hid_connect(logger):
     """
-    Connect to a tool. It should be the only one connected to the desktop.
+    Connect to a tool. It should be the only one connected to the host.
     The function returns a transport instance.
     """
     try:
@@ -153,7 +153,7 @@ def main():
 
     hk = housekeepingprotocol.Jtagice3HousekeepingProtocol(transport)
     hk.start_session()
-    logger.info("Housekeeping session started")
+    logger.info("Signed on")
 
     target = NewMegaAvrJtagTarget(transport)
     logger.info("Target class instantiated")
@@ -168,12 +168,22 @@ def main():
     logger.info("Physcial connection activated")
     logger.info("JTAG ID read: %02X%02X%02X%02X", resp[3], resp[2], resp[1], resp[0])
 
-    #target.protocol.attach()
-    #logger.info("Attached to OCD")
+    target.protocol.attach()
+    logger.info("Attached to OCD")
 
-    #target.protocol.reset()
-    #logger.info("MCU stopped")
+    target.protocol.reset()
+    logger.info("MCU stopped")
 
+
+    target.protocol.enter_progmode()
+    logger.info("Programming mode entered")
+
+    read_signature()
+    
+    target.protocol.leave_progmode()
+    logger.info("Programming mode stopped")
+
+    read_sram() # <<<--- here, SNAP will be killed already
 
     target.protocol.enter_progmode()
     logger.info("Programming mode entered")
@@ -187,16 +197,6 @@ def main():
 
     target.protocol.enter_progmode()
     logger.info("Programming mode entered")
-
-    read_signature()
-    
-    target.protocol.leave_progmode()
-    logger.info("Programming mode stopped")
-
-    read_sram()
-
-    target.protocol.enter_progmode()
-    logger.info("Programming mode entered")
     
     read_signature()
     
@@ -204,8 +204,8 @@ def main():
     logger.info("Programming mode stopped")
 
 
-    #target.protocol.attach()
-    #logger.info("Attached to OCD")
+    target.protocol.attach()
+    logger.info("Attached to OCD")
 
     target.protocol.reset()
     logger.info("MCU stopped")
@@ -222,7 +222,7 @@ def main():
     logger.info("Physcial connection deactivated")
 
     hk.end_session()
-    logger.info("Housekeeping session stopped")
+    logger.info("Signed off")
     return 0
     
  
