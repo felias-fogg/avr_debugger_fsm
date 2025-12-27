@@ -11,9 +11,9 @@ In general, test.py and similar programs work perfectly for ATmega164PA (and oth
 
 ![](debug_fsm.png)
 
-And this seems to be what is implemented in Atmel-ICE, JTAG-ICE, and others (but see test1.py). In any case, the only safe way to switch between programming mode and debugging mode is to force a restart of the session by using `deactivate_physical` followed by `activate_physical`. Further, since the `attach` call often also leads to problems, i.e., one does not end up in debugging mode, one should enter debug mode using `enter_progmode` followed by `leave_progmode`.
+And this seems to be what is implemented in Atmel-ICE, JTAG-ICE, and others (but see test1.py). In any case, the only safe way to switch between programming mode and debugging mode appears to be to force a restart of the session by using `deactivate_physical` followed by `activate_physical`. Further, since the `attach` call often also leads to problems, i.e., one does not end up in debugging mode, one should enter debug mode using `enter_progmode` followed by `leave_progmode`.
 
-Well, after some more experimentation, it seems plausible that the state machine looks more like the in the following picture. As demonstrated in test2.py, this works indeed without a hitch in all cases. 
+Well, after some more experimentation, it seems plausible that the state machine looks more like the one in the following picture. As demonstrated in test2.py, this works indeed without a hitch in all cases. 
 
 ![](simple_debug_fsm.png)
 
