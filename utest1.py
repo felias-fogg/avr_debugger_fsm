@@ -164,6 +164,7 @@ def read_sram():
 
 def restart():
     global hk
+    return
     logger.info("Trying restart...")
     target.protocol.detach()
     target.deactivate_physical()
@@ -219,9 +220,10 @@ def main():
     logger.info("Programming mode stopped")
 
     restart()
-    target.protocol.enter_progmode()
-    target.protocol.leave_progmode()
-    #target.protocol.attach()
+    #target.protocol.enter_progmode()
+    #target.protocol.leave_progmode()
+    target.protocol.attach()
+    time.sleep(0.1)
     read_sram()
 
     restart()
@@ -238,6 +240,8 @@ def main():
     target.protocol.leave_progmode() # <--  SNAP both choke. I have no idea why
     target.protocol.attach()
     logger.info("Attached to OCD")
+    time.sleep(0.1)
+
 
     read_sram()
 
@@ -255,9 +259,12 @@ def main():
     #target.protocol.leave_progmode()
     target.protocol.attach()
     logger.info("Attached to OCD")
+    time.sleep(0.1)
+
 
     target.protocol.reset()
     logger.info("MCU stopped")
+    time.sleep(0.05)
 
     read_sram()
 

@@ -15,14 +15,13 @@ from pymcuprog.avr8target import MegaAvrJtagTarget, TinyXAvrTarget
 from pymcuprog.utils import read_tool_info
 
 # Chip to connect to
-#from atmega1280 import DEVICE_INFO 
 #from atmega644 import DEVICE_INFO
-#from atmega324p import DEVICE_INFO # XplainedPro board
+#from atmega324pb import DEVICE_INFO # XplainedPro board
+#from atmega1284p import DEVICE_INFO
 from atmega4809 import DEVICE_INFO
 
 logger = None
 target = None
-hk = None
 
 class NewTinyXAvrTarget(TinyXAvrTarget):
 
@@ -124,8 +123,6 @@ class NewMegaAvrJtagTarget(MegaAvrJtagTarget):
         #self.protocol.set_function(Avr8Protocol.AVR8_FUNC_PROGRAMMING)
         self.protocol.set_interface(Avr8Protocol.AVR8_PHY_INTF_JTAG)
 
-
-
 def hid_connect(logger):
     """
     Connect to a tool. It should be the only one connected to the host.
@@ -162,15 +159,8 @@ def read_sram():
     logger.info("Reading from SRAM")
     return target.protocol.memory_read(Avr8Protocol.AVR8_MEMTYPE_SRAM, 0x100, 2)
 
-def restart():
-    global hk
-    logger.info("Trying restart...")
-    target.protocol.detach()
-    target.deactivate_physical()
-    target.activate_physical()
-
 def main():
-    global target, logger, hk
+    global target, logger
     
     logging.basicConfig(stream=sys.stdout,level=logging.INFO)
     logger = getLogger()
@@ -188,6 +178,7 @@ def main():
     hk.start_session()
     logger.info("Signed on")
 
+    #target = NewMegaAvrJtagTarget(transport)
     target = NewTinyXAvrTarget(transport)
     logger.info("Target class instantiated")
 
@@ -201,60 +192,75 @@ def main():
     logger.info("Physcial connection activated")
     logger.info("JTAG ID read: %02X%02X%02X%02X", resp[3], resp[2], resp[1], resp[0])
 
-    #target.protocol.attach()
-    target.protocol.enter_progmode()
-    target.protocol.leave_progmode()
+    target.protocol.attach()
     logger.info("Attached to OCD")
 
     target.protocol.reset()
     logger.info("MCU stopped")
 
-    restart()
-    target.protocol.enter_progmode()
-    logger.info("Programming mode entered")
+    #target.protocol.detach()
+    #logger.info("MCU detached")
 
-    read_signature()
-    
-    target.protocol.leave_progmode()
-    logger.info("Programming mode stopped")
-
-    restart()
-    target.protocol.enter_progmode()
-    target.protocol.leave_progmode()
-    #target.protocol.attach()
-    read_sram()
-
-    restart()
-    target.protocol.enter_progmode()
-    logger.info("Programming mode entered")
-
-    read_signature()
-    
-    target.protocol.leave_progmode()
-    logger.info("Programming mode stopped")
-
-    restart()
-    target.protocol.enter_progmode() # <-- If we comment out enter/leave, then Atmel-ICE and
-    target.protocol.leave_progmode() # <--  SNAP both choke. I have no idea why
-    target.protocol.attach()
-    logger.info("Attached to OCD")
-
-    read_sram()
-
-    restart()
-    target.protocol.enter_progmode()
-    logger.info("Programming mode entered")
-    
-    read_signature()
-    
-    target.protocol.leave_progmode()
-    logger.info("Programming mode stopped")
-
-    restart()
     #target.protocol.enter_progmode()
+    #logger.info("Programming mode entered")
+
+    read_signature()
+    
     #target.protocol.leave_progmode()
-    target.protocol.attach()
-    logger.info("Attached to OCD")
+    #logger.info("Programming mode stopped")
+
+    #target.protocol.attach()
+    #logger.info("Attached to OCD")
+
+    read_sram() # <<<--- here, SNAP will be killed already
+
+    #target.protocol.detach()
+    #logger.info("MCU detached")
+
+    # let us completely restart
+    #logger.info("Total restart")
+    #target.deactivate_physical()
+
+    #resp = target.activate_physical()
+    #logger.info("Physcial connection activated")
+    #logger.info("JTAG ID read: %02X%02X%02X%02X", resp[3], resp[2], resp[1], resp[0])
+
+    #target.protocol.attach()
+    #logger.info("Attached to OCD")
+
+    target.protocol.reset()
+    logger.info("MCU stopped")
+
+    #target.protocol.detach()
+    #logger.info("MCU detached")
+
+    #target.protocol.enter_progmode()
+    #logger.info("Programming mode entered")
+
+    read_signature()
+    
+    #target.protocol.leave_progmode()
+    #logger.info("Programming mode stopped")
+
+    #target.protocol.attach()
+    #logger.info("Attached to OCD")
+
+    read_sram()
+
+    #target.protocol.detach()
+    #logger.info("MCU detached")
+
+    #target.protocol.enter_progmode()
+    #logger.info("Programming mode entered")
+    
+    read_signature()
+    
+    #target.protocol.leave_progmode()
+    #logger.info("Programming mode stopped")
+
+
+    #target.protocol.attach()
+    #logger.info("Attached to OCD")
 
     target.protocol.reset()
     logger.info("MCU stopped")

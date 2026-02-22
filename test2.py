@@ -17,7 +17,8 @@ from pymcuprog.utils import read_tool_info
 # Chip to connect to
 #from atmega644 import DEVICE_INFO
 #from atmega324pb import DEVICE_INFO # XplainedPro board
-from atmega1280 import DEVICE_INFO
+#from atmega1284p import DEVICE_INFO
+from atmega4809 import DEVICE_INFO
 
 logger = None
 target = None
